@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Quiz — Módulo 01 | Corretora Amor à Vida</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1E3A5F;
+    --blue: #1B7DC4;
+    --light: #7EC8E3;
+    --pale: #EAF5FB;
+    --white: #ffffff;
+    --text: #1a2a3a;
+    --muted: #5a7a9a;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --bg: #f0f7ff;
+    --pink: #e91e8c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── BG DECORATION ── */
+  .bg-deco {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .bg-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+  }
+  .bg-blob:nth-child(1) { width: 600px; height: 600px; background: var(--blue); top: -200px; right: -200px; }
+  .bg-blob:nth-child(2) { width: 400px; height: 400px; background: var(--light); bottom: -100px; left: -100px; }
+
+  /* ── LAYOUT ── */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .brand {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+  .quiz-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+  .quiz-sub {
+    font-size: 15px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: rgba(30,58,95,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(30,58,95,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy), var(--blue), var(--light));
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .progress-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    white-space: nowrap;
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(30,58,95,0.10);
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .q-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #2a5298 100%);
+    padding: 28px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .q-header::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(126,200,227,0.07);
+  }
+  .q-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+    opacity: 0.8;
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+  }
+
+  .q-body {
+    padding: 28px 36px 32px;
+  }
+
+  /* ── OPTIONS ── */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .opt-btn {
+    width: 100%;
+    background: var(--pale);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 52px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .opt-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(27,125,196,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .opt-btn:hover:not(:disabled)::before { opacity: 1; }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(27,125,196,0.12);
+  }
+  .opt-btn:disabled { cursor: default; }
+
+  .opt-letter {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(30,58,95,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .opt-btn.correct {
+    background: #dcfce7;
+    border-color: var(--green);
+    transform: translateX(0) !important;
+  }
+  .opt-btn.correct .opt-letter {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .opt-btn.wrong {
+    background: #fee2e2;
+    border-color: var(--red);
+  }
+  .opt-btn.wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .opt-btn.dimmed {
+    opacity: 0.45;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    margin-top: 20px;
+    border-radius: 14px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .feedback.show { display: flex; gap: 12px; align-items: flex-start; }
+  .feedback.correct-fb { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .feedback.wrong-fb   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .feedback-icon { font-size: 20px; flex-shrink: 0; }
+  .feedback-text strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+  /* ── NEXT BUTTON ── */
+  .btn-next {
+    margin-top: 24px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 18px 32px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-next.show { display: flex; animation: fadeIn 0.3s ease; }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(27,125,196,0.35); }
+
+  /* ── STREAK / MINI STATS ── */
+  .mini-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .mini-stat {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    box-shadow: 0 2px 8px rgba(30,58,95,0.07);
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+  }
+  .mini-stat-icon { font-size: 16px; }
+  .mini-stat-num { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 800; }
+  .mini-stat-num.green { color: var(--green); }
+  .mini-stat-num.red   { color: var(--red); }
+
+  /* ── RESULT SCREEN ── */
+  .result-screen {
+    display: none;
+    text-align: center;
+    animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .result-screen.show { display: block; }
+
+  .result-card {
+    background: var(--white);
+    border-radius: 28px;
+    box-shadow: 0 16px 60px rgba(30,58,95,0.14);
+    padding: 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--navy), var(--blue), var(--light));
+  }
+
+  .result-emoji {
+    font-size: 72px;
+    margin-bottom: 20px;
+    display: block;
+    animation: bounce 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+  }
+  @keyframes bounce {
+    from { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .result-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 10px;
+    letter-spacing: -0.03em;
+  }
+
+  .result-sub {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    line-height: 1.65;
+  }
+
+  .score-big {
+    font-family: 'Sora', sans-serif;
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-label {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    font-weight: 500;
+  }
+
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .result-stat {
+    background: var(--pale);
+    border-radius: 16px;
+    padding: 20px 16px;
+  }
+  .result-stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .result-stat-num.g { color: var(--green); }
+  .result-stat-num.r { color: var(--red); }
+  .result-stat-num.b { color: var(--blue); }
+  .result-stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .medal-bar {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .medal {
+    background: var(--pale);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .medal.earned {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff;
+  }
+
+  .result-message {
+    background: var(--pale);
+    border-radius: 16px;
+    padding: 20px 24px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--navy);
+    margin-bottom: 32px;
+    border-left: 4px solid var(--blue);
+    text-align: left;
+  }
+
+  /* ── CERTIFICATE BANNER ── */
+  .cert-banner {
+    background: linear-gradient(135deg, #1a5c2a, #22c55e);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    text-align: center;
+    animation: fadeIn 0.5s ease 0.3s both;
+  }
+  .cert-banner-icon { font-size: 48px; margin-bottom: 10px; }
+  .cert-banner h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .cert-banner p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .btn-cert {
+    background: #fff;
+    color: #1a5c2a;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-cert:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+
+  .btn-retry {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 18px 48px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    margin-right: 12px;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(27,125,196,0.35); }
+
+  .btn-review {
+    background: transparent;
+    color: var(--navy);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 16px 28px;
+    border: 2px solid rgba(30,58,95,0.2);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+    min-height: 52px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-review:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ── REVIEW SECTION ── */
+  .review-section {
+    display: none;
+    margin-top: 40px;
+  }
+  .review-section.show { display: block; animation: slideUp 0.4s ease; }
+  .review-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+  .review-item {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    border-left: 4px solid transparent;
+    box-shadow: 0 2px 12px rgba(30,58,95,0.06);
+  }
+  .review-item.correct-item { border-left-color: var(--green); }
+  .review-item.wrong-item   { border-left-color: var(--red); }
+  .review-q { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+  .review-a {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+  .review-a .tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tag-correct { background: #dcfce7; color: #166534; }
+  .tag-yours   { background: #fee2e2; color: #991b1b; }
+
+  /* ── INTRO SCREEN ── */
+  .intro-screen { display: block; }
+  .intro-screen.hide { display: none; }
+
+  .intro-card {
+    background: var(--white);
+    border-radius: 28px;
+    padding: 56px 48px;
+    text-align: center;
+    box-shadow: 0 16px 60px rgba(30,58,95,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+  .intro-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--navy), var(--blue), var(--light));
+  }
+
+  .intro-icon { font-size: 72px; margin-bottom: 24px; display: block; }
+  .intro-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .intro-sub {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 36px;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .intro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .intro-stat {
+    background: var(--pale);
+    border-radius: 16px;
+    padding: 20px 14px;
+  }
+  .intro-stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .intro-stat-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  /* ── NAME FORM ── */
+  .name-form {
+    background: var(--pale);
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .name-form-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .name-form-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .name-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .name-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .name-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .name-field input {
+    background: var(--white);
+    border: 2px solid rgba(30,58,95,0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .name-field input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(27,125,196,0.12);
+  }
+  .name-field input.error {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+  }
+  .field-error {
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 500;
+    display: none;
+  }
+  .field-error.show { display: block; }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 20px 56px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 28px rgba(27,125,196,0.3);
+    min-height: 60px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    z-index: 10;
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .btn-start:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(27,125,196,0.4); }
+  .btn-start:active { transform: translateY(0); opacity: 0.9; }
+
+  /* ── CERTIFICATE OVERLAY ── */
+  .cert-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,20,40,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .cert-overlay.show { display: flex; }
+
+  .cert-wrapper {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 720px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    position: relative;
+    animation: slideUp 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  /* ── CERTIFICATE DESIGN ── */
+  #certificate {
+    background: #fff;
+    padding: 0;
+  }
+
+  .cert-top-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, #2a5298 60%, var(--blue) 100%);
+    height: 12px;
+  }
+
+  .cert-body {
+    padding: 40px 56px 48px;
+    position: relative;
+    border: 1px solid #e8eef5;
+  }
+
+  /* Logo header centered */
+  .cert-logo-area {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--pale);
+  }
+  .cert-logo-img {
+    max-width: 280px;
+    width: 100%;
+    height: auto;
+    display: inline-block;
+  }
+  .cert-logo-tagline-cert {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .cert-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 50px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .cert-center {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .cert-certifica {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  .cert-titulo {
+    font-family: 'Sora', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .cert-que {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .cert-nome {
+    font-family: 'Sora', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .cert-divider {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--navy), var(--blue));
+    margin: 20px auto;
+    border-radius: 2px;
+  }
+
+  .cert-texto {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .cert-texto strong {
+    color: var(--navy);
+    font-weight: 700;
+  }
+
+  .cert-info-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 36px 0;
+  }
+  .cert-info-box {
+    background: var(--pale);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .cert-info-icon { font-size: 22px; margin-bottom: 6px; }
+  .cert-info-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .cert-info-value {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+
+  .cert-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 32px;
+    border-top: 2px solid var(--pale);
+    margin-top: 8px;
+  }
+
+  .cert-sign-block { text-align: center; }
+  .cert-sign-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .cert-sign-role {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .cert-sign-line {
+    width: 180px;
+    height: 2px;
+    background: rgba(30,58,95,0.2);
+    margin: 12px auto 14px;
+  }
+  .cert-sign-wave {
+    font-family: 'Sora', sans-serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--navy);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    opacity: 0.6;
+  }
+
+  .cert-bottom-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, #2a5298 60%, var(--blue) 100%);
+    height: 8px;
+  }
+
+  /* Cert Overlay Actions */
+  .cert-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    background: var(--pale);
+    border-top: 1px solid rgba(30,58,95,0.08);
+    flex-wrap: wrap;
+  }
+  .btn-download-cert {
+    flex: 1;
+    background: linear-gradient(135deg, #1a5c2a, #22c55e);
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    min-height: 50px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-download-cert:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+  .btn-close-cert {
+    background: transparent;
+    color: var(--navy);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px 24px;
+    border: 2px solid rgba(30,58,95,0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 50px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-close-cert:hover { border-color: var(--navy); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .wrap { padding: 24px 16px 60px; }
+    .header { margin-bottom: 28px; }
+    .quiz-title { font-size: 26px; }
+    .intro-card, .result-card { padding: 32px 20px; }
+    .intro-title { font-size: 24px; }
+    .intro-sub { font-size: 14px; margin-bottom: 24px; }
+    .intro-stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .intro-stat { padding: 16px 10px; }
+    .intro-stat-num { font-size: 24px; }
+    .name-form { padding: 20px 16px; }
+    .name-fields { grid-template-columns: 1fr; gap: 12px; }
+    .q-header { padding: 20px 20px; }
+    .q-body { padding: 18px 20px 22px; }
+    .q-text { font-size: 16px; }
+    .opt-btn { font-size: 14px; padding: 14px 14px; gap: 10px; }
+    .opt-letter { width: 32px; height: 32px; font-size: 12px; }
+    .result-title { font-size: 24px; }
+    .result-stats { grid-template-columns: 1fr 1fr; }
+    .score-big { font-size: 60px; }
+    .mini-stat { padding: 8px 12px; min-width: 80px; font-size: 12px; }
+    .mini-stat-num { font-size: 14px; }
+    .btn-retry { margin-right: 0; margin-bottom: 10px; width: 100%; }
+    .btn-review { width: 100%; }
+    .result-message { font-size: 14px; padding: 16px 18px; }
+    /* Certificate mobile */
+    .cert-body { padding: 24px 16px; }
+    .cert-logo-img { max-width: 200px; }
+    .cert-titulo { font-size: 22px; }
+    .cert-nome { font-size: 24px; }
+    .cert-texto { font-size: 13px; }
+    .cert-info-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cert-footer { justify-content: center; }
+    .cert-actions { flex-direction: column; }
+  }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    body * { visibility: hidden !important; }
+    .cert-overlay, .cert-overlay * { visibility: visible !important; }
+    .cert-overlay { position: fixed; inset: 0; background: #fff !important; display: flex !important; padding: 0; }
+    .cert-wrapper { box-shadow: none; border-radius: 0; max-width: 100%; }
+    .cert-actions { display: none !important; }
+    .cert-overlay-close { display: none !important; }
+    @page { margin: 0; size: A4 landscape; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-deco">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">Corretora Amor à Vida · Treinamento</div>
+    <h1 class="quiz-title">Quiz — Módulo 01</h1>
+    <p class="quiz-sub">O Be-a-Bá dos Planos de Saúde</p>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div class="intro-screen" id="introScreen">
+    <div class="intro-card">
+      <span class="intro-icon">🧠</span>
+      <h2 class="intro-title">Teste seu conhecimento!</h2>
+      <p class="intro-sub">Você estudou o Módulo 01? Agora é hora de provar. Responda as perguntas e veja o quanto você absorveu sobre o mundo dos planos de saúde.</p>
+      <div class="intro-stats">
+        <div class="intro-stat">
+          <div class="intro-stat-num">15</div>
+          <div class="intro-stat-label">Perguntas</div>
+        </div>
+        <div class="intro-stat">
+          <div class="intro-stat-num">4</div>
+          <div class="intro-stat-label">Alternativas cada</div>
+        </div>
+        <div class="intro-stat">
+          <div class="intro-stat-num">~8</div>
+          <div class="intro-stat-label">Minutos</div>
+        </div>
+      </div>
+
+      <!-- NAME FORM -->
+      <div class="name-form">
+        <div class="name-form-title">✏️ Antes de começar, nos diga quem você é</div>
+        <div class="name-form-sub">Seu nome será usado para gerar o certificado ao final — se você gabaritar 70% ou mais!</div>
+        <div class="name-fields">
+          <div class="name-field">
+            <label for="inputNome">Nome</label>
+            <input type="text" id="inputNome" placeholder="Ex: Maria" autocomplete="given-name" autocapitalize="words" />
+            <span class="field-error" id="erroNome">Informe seu nome</span>
+          </div>
+          <div class="name-field">
+            <label for="inputSobrenome">Sobrenome</label>
+            <input type="text" id="inputSobrenome" placeholder="Ex: Silva" autocomplete="family-name" autocapitalize="words" />
+            <span class="field-error" id="erroSobrenome">Informe seu sobrenome</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-start" id="btnStart" type="button">Começar Quiz →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" style="display:none">
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">1 / 15</div>
+    </div>
+
+    <!-- Mini Stats -->
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <span class="mini-stat-icon">✅</span>
+        <span class="mini-stat-num green" id="countCorrect">0</span>
+        <span style="color:var(--muted)">certas</span>
+      </div>
+      <div class="mini-stat">
+        <span class="mini-stat-icon">❌</span>
+        <span class="mini-stat-num red" id="countWrong">0</span>
+        <span style="color:var(--muted)">erradas</span>
+      </div>
+      <div class="mini-stat">
+        <span class="mini-stat-icon">🔥</span>
+        <span class="mini-stat-num" id="streakCount" style="color:var(--yellow)">0</span>
+        <span style="color:var(--muted)">seq.</span>
+      </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="q-card" id="qCard">
+      <div class="q-header">
+        <div class="q-num" id="qNum">Pergunta 1 de 15</div>
+        <div class="q-text" id="qText"></div>
+      </div>
+      <div class="q-body">
+        <div class="options" id="optionsList"></div>
+        <div class="feedback" id="feedback">
+          <span class="feedback-icon" id="fbIcon"></span>
+          <div class="feedback-text" id="fbText"></div>
+        </div>
+        <button class="btn-next" id="btnNext" onclick="nextQuestion()">
+          Próxima pergunta →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="result-screen" id="resultScreen">
+    <div class="result-card">
+      <span class="result-emoji" id="resultEmoji">🎉</span>
+      <h2 class="result-title" id="resultTitle">Parabéns!</h2>
+      <p class="result-sub" id="resultSub"></p>
+      <div class="score-big" id="scorePct"></div>
+      <div class="score-label" id="scoreLabel"></div>
+      <div class="result-stats">
+        <div class="result-stat">
+          <div class="result-stat-num g" id="resCorrect">0</div>
+          <div class="result-stat-label">Corretas</div>
+        </div>
+        <div class="result-stat">
+          <div class="result-stat-num r" id="resWrong">0</div>
+          <div class="result-stat-label">Erradas</div>
+        </div>
+        <div class="result-stat">
+          <div class="result-stat-num b" id="resStreak">0</div>
+          <div class="result-stat-label">Maior sequência</div>
+        </div>
+      </div>
+      <div class="medal-bar" id="medalBar"></div>
+      <div class="result-message" id="resultMessage"></div>
+
+      <!-- CERTIFICATE BANNER (shown if >= 70%) -->
+      <div class="cert-banner" id="certBanner" style="display:none">
+        <div class="cert-banner-icon">🏅</div>
+        <h3>Você conquistou seu Certificado!</h3>
+        <p>Parabéns! Você atingiu a nota mínima de 70% e concluiu com êxito o Módulo 01. Clique abaixo para gerar e baixar seu certificado.</p>
+        <button class="btn-cert" onclick="abrirCertificado()">🎓 Gerar Certificado</button>
+      </div>
+
+      <div>
+        <button class="btn-retry" onclick="retryQuiz()">🔄 Tentar Novamente</button>
+        <br>
+        <button class="btn-review" onclick="toggleReview()">📋 Ver Gabarito</button>
+      </div>
+    </div>
+
+    <div class="review-section" id="reviewSection">
+      <div class="review-title">📋 Gabarito Completo</div>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- CERTIFICATE OVERLAY -->
+<div class="cert-overlay" id="certOverlay">
+  <div class="cert-wrapper">
+    <div id="certificate">
+      <div class="cert-top-bar"></div>
+      <div class="cert-body">
+
+        <!-- Logo centrada no topo -->
+        <div class="cert-logo-area">
+          <img class="cert-logo-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MjAgMTQwIiB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCI+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoOCwgMTApIj4KICAgIDxwYXRoIGQ9Ik01OCwxOCBDNTIsNiAzOCwzIDMwLDEyIEMyMiwzIDgsNiAyLDE4IEMtNSwzMyA4LDQ4IDMwLDY4IEM1Miw0OCA2NSwzMyA1OCwxOFoiIAogICAgICAgICAgZmlsbD0iIzFCN0RDNCIvPgogICAgPHBhdGggZD0iTTUyLDE2IEM0OCw4IDM4LDYgMzIsMTMgQzM0LDEwIDQwLDggNDYsMTIgQzUwLDE1IDUyLDIwIDUwLDI2IEM1MSwyMyA1MywxOSA1MiwxNloiIAogICAgICAgICAgZmlsbD0iIzRBQURFOCIgb3BhY2l0eT0iMC42Ii8+CiAgICA8cGF0aCBkPSJNMTgsMzAgQzE4LDMwIDI0LDI0IDMwLDIyIEMzNiwyNCA0MiwzMCA0MiwzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjIiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC44NSIvPgogICAgPHBhdGggZD0iTTIyLDM2IEwyMSwyNyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjgiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC44NSIvPgogICAgPHBhdGggZD0iTTMwLDM4IEwzMCwyNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjgiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC44NSIvPgogICAgPHBhdGggZD0iTTM4LDM2IEwzOSwyNyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjgiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC44NSIvPgogICAgPHBhdGggZD0iTTE4LDQyIEMxOCw0MiAyNCw0NiAzMCw0NiBDMzYsNDYgNDIsNDIgNDIsNDIiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS44IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNyIvPgogIDwvZz4KICA8dGV4dCB4PSI5OCIgeT0iNDQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjQwMCIgCiAgICAgICAgZmlsbD0iIzdFQzhFMyIgbGV0dGVyLXNwYWNpbmc9IjIiPmNvcnJldG9yYTwvdGV4dD4KICA8dGV4dCB4PSI5NSIgeT0iMTA4IiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjY4IiBmb250LXdlaWdodD0iOTAwIiAKICAgICAgICBmaWxsPSIjMUUzQTVGIiBsZXR0ZXItc3BhY2luZz0iLTEiPmFtb3I8L3RleHQ+CiAgPHRleHQgeD0iMzMwIiB5PSIxMDgiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjaywgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjgiIGZvbnQtd2VpZ2h0PSI5MDAiIAogICAgICAgIGZpbGw9IiMxRTNBNUYiPsOgPC90ZXh0PgogIDx0ZXh0IHg9IjM3NSIgeT0iMTA4IiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjY4IiBmb250LXdlaWdodD0iOTAwIiAKICAgICAgICBmaWxsPSIjN0VDOEUzIj52aWRhPC90ZXh0PgogIDx0ZXh0IHg9IjUwOCIgeT0iNjgiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjQwMCIgCiAgICAgICAgZmlsbD0iIzdFQzhFMyI+wq48L3RleHQ+Cjwvc3ZnPg==" alt="Corretora Amor à Vida" />
+          <div><span class="cert-badge">Certificado Oficial</span></div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="cert-center">
+          <div class="cert-certifica">Certificamos que</div>
+          <div class="cert-nome" id="certNome">Fulana da Silva</div>
+          <div class="cert-divider"></div>
+          <div class="cert-texto">
+            acaba de concluir com êxito o treinamento
+            <strong>Bê-á-bá do Plano de Saúde</strong>,
+            ministrado pelo instrutor
+            <strong>Leandro Humberto</strong>,
+            com carga horária de
+            <strong>20 horas</strong>.
+          </div>
+        </div>
+
+        <!-- Info Boxes -->
+        <div class="cert-info-row">
+          <div class="cert-info-box">
+            <div class="cert-info-icon">📚</div>
+            <div class="cert-info-label">Módulo</div>
+            <div class="cert-info-value">Módulo 01 — Bê-á-bá do Plano de Saúde</div>
+          </div>
+          <div class="cert-info-box">
+            <div class="cert-info-icon">⏱️</div>
+            <div class="cert-info-label">Carga Horária</div>
+            <div class="cert-info-value">20 horas</div>
+          </div>
+          <div class="cert-info-box">
+            <div class="cert-info-icon">📅</div>
+            <div class="cert-info-label">Data de Conclusão</div>
+            <div class="cert-info-value" id="certData">—</div>
+          </div>
+        </div>
+
+        <!-- Footer: Assinatura Leandro Humberto -->
+        <div class="cert-footer">
+          <div class="cert-sign-block">
+            <div class="cert-sign-wave">Leandro Humberto</div>
+            <div class="cert-sign-line"></div>
+            <div class="cert-sign-name">Leandro Humberto</div>
+            <div class="cert-sign-role">Diretor Comercial · Corretora Amor à Vida</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="cert-bottom-bar"></div>
+    </div>
+
+    <!-- Overlay Actions -->
+    <div class="cert-actions">
+      <button class="btn-download-cert" onclick="imprimirCertificado()">
+        📄 Salvar / Imprimir Certificado
+      </button>
+      <button class="btn-close-cert" onclick="fecharCertificado()">
+        ✕ Fechar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "Qual princípio fundamental explica como os planos de saúde conseguem oferecer cobertura de alto custo a valores acessíveis?",
+    opts: ["Capitalismo individual", "Mutualismo", "Subsídio governamental", "Livre mercado"],
+    correct: 1,
+    explain: "O mutualismo é a contribuição de várias pessoas para um fundo comum. Todos pagam, mesmo sem usar — e quem precisar, usa o fundo. Esse princípio é a base da Saúde Suplementar."
+  },
+  {
+    q: "A Saúde Suplementar é regulamentada por qual Lei?",
+    opts: ["Lei 8.080/90", "Lei 10.741/03", "Lei 9.656/98", "Lei 14.454/22"],
+    correct: 2,
+    explain: "A Lei 9.656/98 é a Lei dos Planos de Saúde, que regula como as operadoras devem atuar nos contratos de Saúde Suplementar. Ela define ROL, reajustes, carências e muito mais."
+  },
+  {
+    q: "O ROL de Procedimentos da ANS é válido a partir de qual data?",
+    opts: ["1º de janeiro de 1995", "1º de julho de 2000", "1º de janeiro de 1999", "Desde sempre, sem data específica"],
+    correct: 2,
+    explain: "O ROL é válido para planos contratados a partir de 1º de janeiro de 1999 e é revisado geralmente a cada dois anos."
+  },
+  {
+    q: "Qual é o tipo de operadora que tem rede própria de hospitais e clínicas?",
+    opts: ["Seguradoras", "Grupos de Medicina", "Cooperativas", "Administradoras de Benefícios"],
+    correct: 1,
+    explain: "Os Grupos de Medicina são operadoras especializadas em planos de saúde que geralmente possuem rede própria. Exemplo: Hapvida."
+  },
+  {
+    q: "Bradesco Saúde e SulAmérica são exemplos de qual tipo de operadora?",
+    opts: ["Cooperativas", "Autogestão", "Grupos de Medicina", "Seguradoras"],
+    correct: 3,
+    explain: "Seguradoras comercializam também outros tipos de seguros além de saúde e trabalham com rede credenciada (não rede própria). Bradesco e SulAmérica são os principais exemplos."
+  },
+  {
+    q: "Uma empresa com CNPJ novo (exceto MEI) pode contratar plano de saúde empresarial:",
+    opts: ["Somente após 12 meses de abertura", "Somente após 6 meses de abertura", "Desde o primeiro dia de abertura", "Apenas se tiver mais de 3 funcionários"],
+    correct: 2,
+    explain: "CNPJs novos (exceto MEI) podem contratar plano empresarial desde o primeiro dia. O MEI precisa de 6 meses de abertura. Esse é um argumento de venda importante!"
+  },
+  {
+    q: "Qual é o prazo mínimo de cobertura garantido para urgência e emergência após a contratação?",
+    opts: ["Sem carência — disponível imediatamente", "24 horas após a contratação", "30 dias após a contratação", "60 dias após a contratação"],
+    correct: 1,
+    explain: "Urgência e emergência têm cobertura garantida com apenas 24 horas após a contratação. Isso inclui acidentes, risco de morte, risco de lesão irreparável e complicações gestacionais."
+  },
+  {
+    q: "O que é CPT (Cobertura Parcial Temporária)?",
+    opts: [
+      "Um plano de saúde com cobertura reduzida permanentemente",
+      "A restrição temporária de cobertura para procedimentos relacionados a uma doença preexistente, por 24 meses",
+      "Um desconto aplicado em casos de doenças crônicas",
+      "Uma modalidade de plano mais barata sem internação"
+    ],
+    correct: 1,
+    explain: "CPT é a restrição de 24 meses para cirurgias, UTI e procedimentos de alta complexidade relacionados à DLP (Doença ou Lesão Preexistente). Para tudo mais, o plano funciona normalmente."
+  },
+  {
+    q: "Segundo o Estatuto do Idoso, o valor máximo para a faixa etária de 59+ anos em relação à primeira faixa (0–18 anos) é:",
+    opts: ["Até 4 vezes", "Até 5 vezes", "Até 6 vezes", "Até 8 vezes"],
+    correct: 2,
+    explain: "O Estatuto do Idoso (Lei 10.741) determina que o valor para 59+ anos não pode ultrapassar 6 vezes o valor da primeira faixa etária (0 a 18 anos)."
+  },
+  {
+    q: "O que é sinistralidade?",
+    opts: [
+      "O valor total pago pelos beneficiários mensalmente",
+      "A relação entre o número de procedimentos acessados e o valor pago ao plano",
+      "O índice de reajuste anual das operadoras",
+      "O percentual de carência em novos contratos"
+    ],
+    correct: 1,
+    explain: "Sinistralidade = Custo ÷ Receita. O índice ideal é ≤ 70%. Quando ultrapassa 70%, a operadora tem prejuízo e corrige esse déficit no próximo reajuste anual."
+  },
+  {
+    q: "O que diferencia a coparticipação da franquia?",
+    opts: [
+      "A coparticipação só existe em planos empresariais",
+      "Na franquia, o pagamento ocorre na fatura mensal; na coparticipação, no momento do atendimento",
+      "Na coparticipação, o pagamento é cobrado na fatura seguinte; na franquia, o pagamento é feito antes/durante o atendimento diretamente ao prestador",
+      "Não há diferença — são termos sinônimos"
+    ],
+    correct: 2,
+    explain: "Coparticipação: o atendimento ocorre normalmente e a cobrança vem na fatura mensal. Franquia: o beneficiário paga diretamente ao prestador, antes ou durante o atendimento."
+  },
+  {
+    q: "Qual é a principal diferença entre 'Saúde Complementar' e 'Saúde Suplementar'?",
+    opts: [
+      "São a mesma coisa, apenas com nomes diferentes",
+      "Saúde Complementar é quando o governo usa rede privada como complemento ao SUS; Saúde Suplementar é a prestação privada regulada pela ANS",
+      "Saúde Suplementar é exclusiva para servidores públicos",
+      "Saúde Complementar inclui planos odontológicos; Saúde Suplementar não"
+    ],
+    correct: 1,
+    explain: "Saúde Complementar: o Estado usa rede privada para suprir o SUS (ex: durante a pandemia). Saúde Suplementar: planos de saúde privados regulados pela ANS — é onde atuamos!"
+  },
+  {
+    q: "As Administradoras de Benefícios surgiram principalmente para resolver qual problema?",
+    opts: [
+      "A falta de hospitais no interior do Brasil",
+      "O alto custo dos planos para idosos",
+      "A escassez de planos Pessoa Física, permitindo que quem não tem CNPJ acesse planos coletivos",
+      "A ausência de planos odontológicos no mercado"
+    ],
+    correct: 2,
+    explain: "Com a escassez dos planos PF, as administradoras criam contratos coletivos por categorias profissionais, permitindo que pessoas sem CNPJ acessem planos coletivos com melhores condições."
+  },
+  {
+    q: "No plano empresarial, qual é o prazo de aviso prévio para cancelamento após os primeiros 12 meses?",
+    opts: ["30 dias", "45 dias", "60 dias", "90 dias"],
+    correct: 2,
+    explain: "Nos planos empresariais (Pessoa Jurídica), após os primeiros 12 meses, é necessário um aviso prévio de 60 dias para cancelamento do contrato."
+  },
+  {
+    q: "Um beneficiário paga o boleto do plano no dia 15 de julho. Qual é o período de cobertura (subvigência) garantido?",
+    opts: [
+      "1º de julho a 31 de julho",
+      "15 de julho a 14 de agosto",
+      "1º de agosto a 31 de agosto",
+      "15 de julho a 31 de julho"
+    ],
+    correct: 1,
+    explain: "Os planos são pré-pagos: cada boleto garante 1 mês de cobertura a partir da data do pagamento. Boleto pago em 15/07 → subvigência de 15/07 a 14/08."
+  }
+];
+
+let current = 0;
+let correct = 0;
+let wrong = 0;
+let streak = 0;
+let maxStreak = 0;
+let answered = false;
+let userAnswers = [];
+let shuffledQ = [];
+let userName = '';
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function startQuiz() {
+  const nome = document.getElementById('inputNome').value.trim();
+  const sobrenome = document.getElementById('inputSobrenome').value.trim();
+  let hasError = false;
+
+  // Validate name
+  if (!nome) {
+    document.getElementById('inputNome').classList.add('error');
+    document.getElementById('erroNome').classList.add('show');
+    hasError = true;
+  } else {
+    document.getElementById('inputNome').classList.remove('error');
+    document.getElementById('erroNome').classList.remove('show');
+  }
+
+  // Validate surname
+  if (!sobrenome) {
+    document.getElementById('inputSobrenome').classList.add('error');
+    document.getElementById('erroSobrenome').classList.add('show');
+    hasError = true;
+  } else {
+    document.getElementById('inputSobrenome').classList.remove('error');
+    document.getElementById('erroSobrenome').classList.remove('show');
+  }
+
+  if (hasError) return;
+
+  userName = nome + ' ' + sobrenome;
+  shuffledQ = shuffle(QUESTIONS);
+  userAnswers = new Array(shuffledQ.length).fill(null);
+  current = 0; correct = 0; wrong = 0; streak = 0; maxStreak = 0;
+  document.getElementById('introScreen').classList.add('hide');
+  document.getElementById('quizScreen').style.display = 'block';
+  renderQuestion();
+}
+
+// Botão Começar — evento robusto para mobile e desktop
+const btnStart = document.getElementById('btnStart');
+btnStart.addEventListener('click', startQuiz);
+btnStart.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  startQuiz();
+});
+
+// Allow Enter key to navigate between / start from inputs
+document.getElementById('inputNome').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('inputSobrenome').focus(); }
+});
+document.getElementById('inputSobrenome').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); startQuiz(); }
+});
+// Clear error on input
+['inputNome', 'inputSobrenome'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById(id === 'inputNome' ? 'erroNome' : 'erroSobrenome').classList.remove('show');
+  });
+});
+
+function renderQuestion() {
+  answered = false;
+  const q = shuffledQ[current];
+  const total = shuffledQ.length;
+
+  document.getElementById('qNum').textContent = `Pergunta ${current + 1} de ${total}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progressBar').style.width = `${((current) / total) * 100}%`;
+  document.getElementById('progressLabel').textContent = `${current + 1} / ${total}`;
+
+  // Rebuild card animation
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+
+  // Options
+  const list = document.getElementById('optionsList');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    list.appendChild(btn);
+  });
+
+  // Hide feedback + next
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  document.getElementById('btnNext').className = 'btn-next';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffledQ[current];
+  const isCorrect = idx === q.correct;
+  const btns = document.querySelectorAll('.opt-btn');
+  userAnswers[current] = idx;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) { btn.classList.add('correct'); }
+    else if (i === idx && !isCorrect) { btn.classList.add('wrong'); }
+    else { btn.classList.add('dimmed'); }
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  const icon = document.getElementById('fbIcon');
+  const text = document.getElementById('fbText');
+
+  if (isCorrect) {
+    correct++;
+    streak++;
+    maxStreak = Math.max(maxStreak, streak);
+    fb.className = 'feedback correct-fb show';
+    icon.textContent = '✅';
+    text.innerHTML = `<strong>Correto!</strong>${q.explain}`;
+  } else {
+    wrong++;
+    streak = 0;
+    fb.className = 'feedback wrong-fb show';
+    icon.textContent = '❌';
+    text.innerHTML = `<strong>Não foi dessa vez!</strong>${q.explain}`;
+  }
+
+  document.getElementById('countCorrect').textContent = correct;
+  document.getElementById('countWrong').textContent = wrong;
+  document.getElementById('streakCount').textContent = streak;
+
+  // Next button
+  const nextBtn = document.getElementById('btnNext');
+  nextBtn.className = 'btn-next show';
+  nextBtn.textContent = current < shuffledQ.length - 1 ? 'Próxima pergunta →' : 'Ver resultado →';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffledQ.length) {
+    showResult();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showResult() {
+  document.getElementById('quizScreen').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.className = 'result-screen show';
+
+  const total = shuffledQ.length;
+  const pct = Math.round((correct / total) * 100);
+
+  document.getElementById('scorePct').textContent = `${pct}%`;
+  document.getElementById('scoreLabel').textContent = `${correct} de ${total} corretas`;
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('resStreak').textContent = maxStreak;
+
+  let emoji, title, sub, msg;
+
+  if (pct === 100) {
+    emoji = '🏆'; title = 'Perfeito! 100%!';
+    sub = 'Você dominou completamente o Módulo 01!';
+    msg = '🌟 Incrível! Você acertou tudo. Está completamente pronto para começar suas consultorias. Continue assim no Módulo 02!';
+  } else if (pct >= 80) {
+    emoji = '🎯'; title = 'Excelente resultado!';
+    sub = 'Você tem um ótimo domínio do conteúdo.';
+    msg = '💪 Muito bem! Você absorveu muito bem o Módulo 01. Revise os pontos errados e você estará pronto para o Módulo 02.';
+  } else if (pct >= 70) {
+    emoji = '🎓'; title = 'Aprovado! Parabéns!';
+    sub = 'Você atingiu a nota mínima e está certificado.';
+    msg = '✅ Muito bem, ' + userName.split(' ')[0] + '! Você atingiu 70% e conquistou seu certificado do Módulo 01. Continue estudando para dominar ainda mais o conteúdo!';
+  } else if (pct >= 60) {
+    emoji = '👍'; title = 'Bom trabalho!';
+    sub = 'Você está no caminho certo, mas tem espaço para melhorar.';
+    msg = '📖 Recomendamos revisitar o material do Módulo 01 antes de seguir. Foque nos temas que você errou — carência, tipos de operadora e sinistralidade costumam ser mais desafiadores.';
+  } else if (pct >= 40) {
+    emoji = '📚'; title = 'Continue estudando!';
+    sub = 'Você captou parte do conteúdo, mas precisa revisar.';
+    msg = '🔄 Não desanime! Revise o material do Módulo 01 com calma e tente novamente. O importante é entender os conceitos para aplicar na consultoria.';
+  } else {
+    emoji = '💡'; title = 'Ops! Hora de revisar.';
+    sub = 'O conteúdo precisa de mais atenção antes de seguir.';
+    msg = '📋 Recomendamos fortemente rever o Módulo 01 completamente antes de tentar novamente. Cada conceito aqui é base para o seu trabalho diário como consultor.';
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+  document.getElementById('resultMessage').textContent = msg;
+
+  // Show certificate banner if >= 70%
+  const certBanner = document.getElementById('certBanner');
+  if (pct >= 70) {
+    certBanner.style.display = 'block';
+  } else {
+    certBanner.style.display = 'none';
+  }
+
+  // Medals
+  const medals = [
+    { label: '5 seguidas', icon: '🔥', earned: maxStreak >= 5 },
+    { label: '10+ corretas', icon: '⚡', earned: correct >= 10 },
+    { label: 'Nota máxima', icon: '🏆', earned: pct === 100 },
+    { label: '80%+', icon: '🎯', earned: pct >= 80 },
+  ];
+  const bar = document.getElementById('medalBar');
+  bar.innerHTML = medals.map(m =>
+    `<div class="medal ${m.earned ? 'earned' : ''}">${m.icon} ${m.label}</div>`
+  ).join('');
+
+  // Build review list
+  const rl = document.getElementById('reviewList');
+  rl.innerHTML = shuffledQ.map((q, i) => {
+    const ua = userAnswers[i];
+    const ok = ua === q.correct;
+    const letters = ['A','B','C','D'];
+    return `
+      <div class="review-item ${ok ? 'correct-item' : 'wrong-item'}">
+        <div class="review-q">${i+1}. ${q.q}</div>
+        <div class="review-a">
+          <span class="tag tag-correct">✓ Correta</span>
+          <span>${letters[q.correct]}. ${q.opts[q.correct]}</span>
+        </div>
+        ${!ok ? `<div class="review-a"><span class="tag tag-yours">✗ Sua</span><span>${ua !== null ? letters[ua]+'. '+q.opts[ua] : 'Não respondida'}</span></div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleReview() {
+  const rs = document.getElementById('reviewSection');
+  rs.classList.toggle('show');
+  if (rs.classList.contains('show')) {
+    rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function retryQuiz() {
+  document.getElementById('resultScreen').className = 'result-screen';
+  document.getElementById('reviewSection').classList.remove('show');
+  startQuiz();
+}
+
+/* ── CERTIFICATE FUNCTIONS ── */
+function abrirCertificado() {
+  // Set user name
+  document.getElementById('certNome').textContent = userName;
+  // Set today's date in pt-BR
+  const hoje = new Date();
+  const opcoes = { day: '2-digit', month: 'long', year: 'numeric' };
+  document.getElementById('certData').textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+  // Show overlay
+  document.getElementById('certOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharCertificado() {
+  document.getElementById('certOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function imprimirCertificado() {
+  window.print();
+}
+
+// Close overlay when clicking outside certificate
+document.getElementById('certOverlay').addEventListener('click', function(e) {
+  if (e.target === this) fecharCertificado();
+});
+</script>
+</body>
+</html>
